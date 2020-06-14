@@ -44,11 +44,8 @@ let gap = 5;
 let circles = [];
 
 
-let vertSpace = -(2*radius + gap);
-let horzSpace = -(2*radius + gap);
 
 
-let rowchange = -1;
 
 let rowLine = (clientHeight - (2*radius + gap));
 
@@ -96,7 +93,9 @@ const colorPalletes = [
 
 ];
 
-let colorPallete = colorPalletes[getRndInteger(0, colorPalletes.length)];
+let palleteIndex = getRndInteger(0, colorPalletes.length);
+
+let colorPallete = colorPalletes[palleteIndex];
 
 let frames = 0;
 let drip = 0;
@@ -105,8 +104,6 @@ function animationLoop() {
     if(frames === 0) {
         let vFilter;
         let vertSpawn = true;
-        //ctx.clearRect(0,0, clientWidth, 0);
-        //ctx.clearRect(0,clientHeight/2, clientWidth, clientHeight / 2);
 
         for(circ of circles) {
 
@@ -116,19 +113,13 @@ function animationLoop() {
             ctx.arc(circ.x, circ.y, circ.radius, 0, Math.PI * 2);
             ctx.lineWidth = 5;
             ctx.fill();
-            if(horzToggle) {
-                circ.x += horzSpace;
-            }
 
 
-            if(vertToggle) {
-                circ.y += 3;
-            }
-            // if(circ.y > clientHeight / 2 && Math.random() > 0.9) {
-            //     circ.radius += Math.random();
-            // }
 
-            circ.row += rowchange;
+
+            circ.y += 3;
+
+
 
             if(circ.y <= vFilter) {
                 vFilter = circ.y - (2*radius + gap);
@@ -140,7 +131,7 @@ function animationLoop() {
 
         circles = circles.filter(circle => circle.y > -2 * (2*radius + gap) && circle.y < clientHeight + 2 * (2*radius + gap) && circle.x > -2 * (2*radius + gap) && circle.x < clientWidth + 2 * (2*radius + gap));
 
-        if(vertToggle && vertSpawn) {
+        if(vertSpawn) {
             for(let i = 0; i < clientWidth + 2 * (2*radius); i += (2*radius)) {
                 if(Math.random() > 0.6) {
                     let radiusAdjustment = Math.random() > 0.5 ? (Math.random() * radius) / 2 * -1 : (Math.random() * radius) / 2;
@@ -150,14 +141,7 @@ function animationLoop() {
             }
         }
 
-        if(horzToggle) {
-            for(let i = (2*radius + gap); i < clientHeight - 2*(2*radius + gap); i += (2*radius + gap)) {
-                if(Math.random() > 0.6) {
-                    let circ = new Circle(colLine, i, r);
-                    circles.push(circ);
-                }
-            }
-        }
+
 
     }
     frames ++;
@@ -170,58 +154,32 @@ function animationLoop() {
 }
 
 
-let horzToggle = false;
+
 let vertToggle = true;
 
 let triggerChance = 0;
 
 function clickSwitch() {
-    window.cancelAnimationFrame(animationFrame);
 
-
-    if(Math.random() > (0.5 - triggerChance)) {
-        triggerChance = 0;
-        colLine = colLine === (clientWidth - (2*radius + gap)) ? (2*radius + gap) : (clientWidth - (2*radius + gap));
-        horzSpace = horzSpace === -(2*radius + gap) ? (2*radius + gap) : -(2*radius + gap);
-    } else {
-        triggerChance += 0.1;
+    //ensure the color pallete changes every click.
+    let currentIndex = palleteIndex;
+    while(palleteIndex === currentIndex) {
+        palleteIndex = getRndInteger(0, colorPalletes.length);
     }
 
-    if(Math.random() > (0.5 - triggerChance)) {
-        triggerChance = 0;
-        rowLine = rowLine === (clientHeight - (2*radius + gap)) ? (2*radius + gap) : (clientHeight - (2*radius + gap));
-        vertSpace = vertSpace === -(2*radius + gap) ? (2*radius + gap) : -(2*radius + gap);
-    } else {
-        triggerChance += 0.1;
-    }
-
-    horzToggle = Math.random() <= 0.5;
-
-    vertToggle = Math.random() <= 0.5;
-
-    if(!vertToggle && !horzToggle) {
-        if(Math.random() > 0.5) {
-            vertToggle = true;
-        } else {
-            horzToggle = true;
-        }
-    }
-    //space *= -1;
-    //rowchange *= -1;
-    animationFrame = window.requestAnimationFrame(animationLoop);
+    colorPallete = colorPalletes[palleteIndex];
 
 }
 
 
 function resize() {
-    window.cancelAnimationFrame(animationFrame);
+
     pageHeight = window.innerHeight;
     pageWidth = window.innerWidth;
 
     ctx.canvas.width  = pageWidth;
     ctx.canvas.height = pageHeight;
-    circles = [];
-    animationFrame = window.requestAnimationFrame(animationStart);
+
 }
 
 
